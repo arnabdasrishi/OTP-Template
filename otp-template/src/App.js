@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 
 function App() {
   const [showPopup, setShowPopup] = useState(false);
+  const [otpValue, setOtpValue] = useState("");
   const inputRefs = useRef([]);
 
   const handleGetOTPClick = () => {
@@ -15,14 +16,13 @@ function App() {
 
   const handleInputNext = (index, e) => {
     const nextIndex = index + 1;
-  
+
     if (isNaN(e.target.value)) {
       return;
     }
-  
 
-    inputRefs.current[index].value = e.target.value;
-  
+    const newOtpValue = otpValue.slice(0, index) + e.target.value + otpValue.slice(index + 1);
+    setOtpValue(newOtpValue);
 
     if (e.target.value.length === 6 && index === 0) {
       const otp = e.target.value.split("");
@@ -30,24 +30,25 @@ function App() {
         inputRefs.current[i].value = digit;
       });
     }
-  
+
     if (nextIndex < inputRefs.current.length) {
       inputRefs.current[nextIndex].focus();
     }
   };
-  
+
 
   // This function is for the arrow key functionality and backspace
   const handleArrowKey = (index, e) => {
     if (e.key === "Backspace") {
       if (inputRefs.current[index].value === "") {
-
         if (index > 0) {
           inputRefs.current[index - 1].value = "";
           inputRefs.current[index - 1].focus();
         }
       } else {
         inputRefs.current[index].value = "";
+        const newOtpValue = otpValue.slice(0, index) + otpValue.slice(index + 1);
+        setOtpValue(newOtpValue);
       }
     } else if (e.key === "ArrowLeft" && index > 0) {
       inputRefs.current[index - 1].focus();
@@ -55,13 +56,14 @@ function App() {
       inputRefs.current[index + 1].focus();
     }
   };
+
   
   return (
     <div className="App">
       <button className="main__button__otp" onClick={handleGetOTPClick}>
         GET OTP
       </button>
-
+  
       {/* Modal Section begins here */}
       {showPopup && (
         <div className="popup__overlay">
@@ -85,24 +87,33 @@ function App() {
                 />
               ))}
             </div>
-
+  
             <div className="resend__change__otp">
               <p>Change Number</p>
               <p>Re-send OTP</p>
             </div>
-
+  
             <div className="verify__div">
               <button
                 className="verify__button"
+                onClick={() => {
+                  const otp = inputRefs.current.reduce(
+                    (acc, ref) => acc + ref.value,
+                    ""
+                  );
+                  alert(`You entered: ${otp} ✅`);
+                }}
               >
                 Verify Phone Number
               </button>
             </div>
+  
           </div>
         </div>
       )}
     </div>
   );
+  
 }
 
 export default App;
