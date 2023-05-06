@@ -13,28 +13,39 @@ function App() {
     setShowPopup(false);
   };
 
-  const handleInputChange = (index, e) => {
+  const handleInputNext = (index, e) => {
     const nextIndex = index + 1;
-
-    // If the entered value is not a number, don't do anything
+  
     if (isNaN(e.target.value)) {
       return;
     }
+  
 
-    // Update the input value
     inputRefs.current[index].value = e.target.value;
+  
 
-    // Move focus to the next input field if available
+    if (e.target.value.length === 6 && index === 0) {
+      const otp = e.target.value.split("");
+      otp.forEach((digit, i) => {
+        inputRefs.current[i].value = digit;
+      });
+    }
+  
     if (nextIndex < inputRefs.current.length) {
       inputRefs.current[nextIndex].focus();
     }
   };
+  
 
-  // This function is for the arrow key functionality
-  const handleInputKeyDown = (index, e) => {
+  // This function is for the arrow key functionality and backspace
+  const handleArrowKey = (index, e) => {
     if (e.key === "Backspace") {
-      if (index > 0) {
-        inputRefs.current[index-1].focus();
+      if (inputRefs.current[index].value === "") {
+
+        if (index > 0) {
+          inputRefs.current[index - 1].value = "";
+          inputRefs.current[index - 1].focus();
+        }
       } else {
         inputRefs.current[index].value = "";
       }
@@ -44,7 +55,7 @@ function App() {
       inputRefs.current[index + 1].focus();
     }
   };
-
+  
   return (
     <div className="App">
       <button className="main__button__otp" onClick={handleGetOTPClick}>
@@ -56,7 +67,7 @@ function App() {
         <div className="popup__overlay">
           <div className="popup">
             <p onClick={closePopup} className="close__popup">
-              X
+              ❌
             </p>
             <h2>Phone Verification</h2>
             <div>
@@ -69,8 +80,8 @@ function App() {
                   type="number"
                   maxLength="1"
                   ref={(ref) => (inputRefs.current[index] = ref)}
-                  onChange={(e) => handleInputChange(index, e)}
-                  onKeyDown={(e) => handleInputKeyDown(index, e)}
+                  onChange={(e) => handleInputNext(index, e)}
+                  onKeyDown={(e) => handleArrowKey(index, e)}
                 />
               ))}
             </div>
